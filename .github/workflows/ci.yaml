@@ -1,0 +1,90 @@
+name: CI (UI-Server)
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Determine Build Information
+        id: buildinfo
+        run: |
+          target=linux/amd64
+          case $GITHUB_REF in
+            *-arm64*) target=linux/arm64;;
+          esac
+          case $GITHUB_REF in
+            refs/tags/*)  VERSION=${GITHUB_REF#refs/tags/};;
+            refs/heads/*) VERSION=$(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')-${GITHUB_SHA::7};;
+            refs/pull/*)  VERSION=pr-${{ github.event.number }}-${GITHUB_SHA::7};;
+            *)            VERSION=sha-${GITHUB_SHA::7};;
+          esac
+          echo "vuln_scan=${{ secrets.VULN_SCAN }}" >> $GITHUB_OUTPUT
+          echo "build_version=${VERSION}" >> $GITHUB_ENV
+          echo "build_target=${target}" >> $GITHUB_ENV
+          echo "build_gitref=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          echo "build_commit_date=$(git show -s --format=%cI)" >> $GITHUB_ENV
+          echo "build_date=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+
+      # --------------------------------------------------
+      # Secret Scanning - Gitleaks
+      # --------------------------------------------------
+      - name: Run Gitleaks
+        # continue-on-error: true
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # --------------------------------------------------
+      # IaC / Workflow / Dockerfile Security - Checkov
+      # --------------------------------------------------
+      - name: Run Checkov Scan
+        # continue-on-error: true
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          quiet: true
+          framework: github_actions,dockerfile,secrets
+      # --------------------------------------------------
+      # Build Docker Image (LOCAL ONLY)
+      # --------------------------------------------------
+      - name: Build Docker Image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+
+          tags: |
+            test-image:${{ env.build_version }}
+          
+      # --------------------------------------------------
+      # Container Vulnerability Scan - Trivy
+      # --------------------------------------------------
+      - name: Run Trivy Scan
+        # continue-on-error: true
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: test-image:${{ env.build_version }}
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
+      # --------------------------------------------------
+      # Generate SBOM - Syft
+      # --------------------------------------------------
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: test-image:${{ env.build_version }}
+          format: cyclonedx-json
+          output-file: sbom.json
