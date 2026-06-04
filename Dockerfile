@@ -5,4 +5,4 @@ CMD ["sh"]
 
 
 # FROM ubuntu:latest
-# USER root
+USER root
