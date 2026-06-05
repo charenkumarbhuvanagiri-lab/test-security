@@ -2,6 +2,9 @@ name: CI (UI-Server)
 
 on:
   workflow_dispatch:
+  push: 
+    branches:
+      - main
 permissions:
   contents: read
 
@@ -33,7 +36,12 @@ jobs:
           echo "build_gitref=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
           echo "build_commit_date=$(git show -s --format=%cI)" >> $GITHUB_ENV
           echo "build_date=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
-
+      # --------------------------------------------------
+      # Dependency Review
+      # --------------------------------------------------
+      - name: Dependency Review
+        # continue-on-error: true
+        uses: actions/dependency-review-action@v4
       # --------------------------------------------------
       # Secret Scanning - Gitleaks
       # --------------------------------------------------
