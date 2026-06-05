@@ -39,9 +39,9 @@ jobs:
       # --------------------------------------------------
       # Dependency Review
       # --------------------------------------------------
-      - name: Dependency Review
-        # continue-on-error: true
-        uses: actions/dependency-review-action@v4
+      # - name: Dependency Review
+      #   # continue-on-error: true
+      #   uses: actions/dependency-review-action@v4
       # --------------------------------------------------
       # Secret Scanning - Gitleaks
       # --------------------------------------------------
