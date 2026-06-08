@@ -14,6 +14,11 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Debug Event
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Base Ref: ${{ github.base_ref }}"
+          echo "Head Ref: ${{ github.head_ref }}"
       - name: 'Checkout Repository'
         uses: actions/checkout@v6
       - uses: actions/dependency-review-action@v5
