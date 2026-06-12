@@ -21,4 +21,12 @@ jobs:
           echo "Head Ref: ${{ github.head_ref }}"
       - name: 'Checkout Repository'
         uses: actions/checkout@v6
-      - uses: actions/dependency-review-action@v5
+      # Dependency Review
+      - name: Dependency Review
+        uses: actions/dependency-review-action@5
+      # Secret Scanning - Gitleaks
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
