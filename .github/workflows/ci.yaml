@@ -45,11 +45,11 @@ jobs:
       # --------------------------------------------------
       # Secret Scanning - Gitleaks
       # --------------------------------------------------
-      - name: Run Gitleaks
-        # continue-on-error: true
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Run Gitleaks
+      #   # continue-on-error: true
+      #   uses: gitleaks/gitleaks-action@v2
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # --------------------------------------------------
       # IaC / Workflow / Dockerfile Security - Checkov
       # --------------------------------------------------

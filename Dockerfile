@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm install -g http-server
 
-USER appuser
+USER root
 
 EXPOSE 3000
 
