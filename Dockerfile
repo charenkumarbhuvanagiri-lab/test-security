@@ -10,8 +10,8 @@ COPY . .
 
 RUN npm install -g http-server
 
-USER root
-
+# USER root
+USER appuser
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
