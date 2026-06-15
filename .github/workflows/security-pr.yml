@@ -14,11 +14,11 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Debug Event
-        run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "Base Ref: ${{ github.base_ref }}"
-          echo "Head Ref: ${{ github.head_ref }}"
+      # - name: Debug Event
+      #   run: |
+      #     echo "Event: ${{ github.event_name }}"
+      #     echo "Base Ref: ${{ github.base_ref }}"
+      #     echo "Head Ref: ${{ github.head_ref }}"
       - name: 'Checkout Repository'
         uses: actions/checkout@v4
         with:
@@ -31,7 +31,7 @@ jobs:
       # --------------------------------------------------
       # Secret Scanning - Gitleaks
       - name: Run Gitleaks
-        continue-on-error: true
+        # continue-on-error: true
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
