@@ -20,7 +20,9 @@ jobs:
           echo "Base Ref: ${{ github.base_ref }}"
           echo "Head Ref: ${{ github.head_ref }}"
       - name: 'Checkout Repository'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       # Dependency Review
       - name: Dependency Review
         uses: actions/dependency-review-action@v5
