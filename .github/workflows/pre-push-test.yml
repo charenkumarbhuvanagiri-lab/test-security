@@ -15,7 +15,7 @@ jobs:
     - name: Dependency Review
       uses: actions/dependency-review-action@v5
       with:
-        fail-on-severity: critical, high
+        fail-on-severity: high
     - name: Run Gitleaks
     #   continue-on-error: true
       uses: gitleaks/gitleaks-action@v3
