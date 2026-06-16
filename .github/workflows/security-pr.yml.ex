@@ -1,0 +1,49 @@
+name: Security PR Checks
+
+on:
+  pull_request:
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      # - name: Debug Event
+      #   run: |
+      #     echo "Event: ${{ github.event_name }}"
+      #     echo "Base Ref: ${{ github.base_ref }}"
+      #     echo "Head Ref: ${{ github.head_ref }}"
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Dependency Review
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v5
+      # --------------------------------------------------
+      # Secret Scanning - Gitleaks
+      # --------------------------------------------------
+      # Secret Scanning - Gitleaks
+      - name: Run Gitleaks
+        # continue-on-error: true
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # --------------------------------------------------
+      # IaC / Workflow / Dockerfile Security - Checkov
+      # --------------------------------------------------
+      - name: Run Checkov Scan
+        # continue-on-error: true
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          quiet: true
+          framework: github_actions,dockerfile
+

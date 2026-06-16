@@ -1,0 +1,33 @@
+name: 'Dependency Review'
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checkout Repository'
+      uses: actions/checkout@v6
+      with:
+          fetch-depth: 0
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v5
+      with:
+        fail-on-severity: high
+    - name: Run Gitleaks
+      continue-on-error: true
+      uses: gitleaks/gitleaks-action@v3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}       # If you are scanning repos that belong to an organization account, you will need to obtain a free license key
+        # need to fill google form to get the license key: https://gitleaks.io/
+    - name: Run Checkov Scan
+        # continue-on-error: true
+      uses: bridgecrewio/checkov-action@v12
+      with:
+        directory: .
+        quiet: true
+        framework: github_actions,dockerfile
+        
